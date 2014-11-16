@@ -1,0 +1,25 @@
+ID  Identificação do cliente
+sexo	Sexo: M-masculino; F-feminino
+modulo	Segmentação de clientes; valores mais baixos representam clientes com menor renda ou investimento, valores mais altos representam clientes mais interessantes para a instituição
+cheque	Classificação da conta corrente; quanto maior o valor, mais "especial" o cliente
+evolcredor	Evolucao do saldo credor medio  trimestral (A: aumentou, D: diminuiu, M: manteve)
+evoldevedor	Evolucao do saldo devedor medio  trimestral (A: aumentou, D: diminuiu, M: manteve)
+evolpoup	Evolucao do saldo da poupança trimestral (A: aumentou, D: diminuiu, M: manteve)
+idade	idade em anos
+salario	
+        0 - salario nao informado	
+        1 - 1 a 300	
+        2 - 301 a 500	
+        3 - 501 a 1.000	
+        4 - 1.001 a 1.500	
+        5 - 1.501 a 2.000	
+        6 - 2.001 a 3.000	
+        7 - 3.001 a 4.000	
+        8 - 4.001 a 5.000	
+        9 - 5.001 a 7.000	
+      10 - 7.001 a 10.000	
+      11 - acima de 10.000	
+cartaocancel	Cancelamento do cartao de credito pelo banco 0 - nao cancelou; 1 - cancelou
+bancsal	0: não recebe salário pelo banco; 1: recebe salário pelo banco
+tempo	Tempo de permanência com um determinado produto, em meses
+status	1: tempo refere-se ao tempo da contratação até o cancelamento do produto; 0: tempo da contratação até término de acompanhamento sem cancelamento (censura)

@@ -1,0 +1,101 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[hmargin=2cm,vmargin=1.5cm,bmargin=1.5cm]{geometry}
+\title{Análise estatística de dados com objetivo de identificar clientes propensos a cancelar produtos de um banco}
+\author{Daniel V. F. Falbel}
+\date{16 de Novembro de 2014}
+\begin{document}
+\maketitle
+
+\section*{Resumo}
+
+Para auxiliar um banco na criação de ações publicitárias para retenção de clientes que possuem um certo cartão de crédito, este trabalho apresenta uma análise estatística que permite a identificação dos clientes mais propensos a cancelar o produto.
+
+\section{Descrição do problema}
+
+Um banco deseja fazer ações de marketing para reter os seus clientes, evitar que eles cancelem seus produtos. Para poder fazer ações mais acertivas, o banco deseja saber qual é o perfil dos clientes com maior propensão a cancelar um certo cartão de crédito.
+
+As variáveis que podem ajudar na identificação dos perfis estão listadas abaixo: 
+
+\begin{itemize}
+  \item sexo: M-masculino; F-feminino
+  \item modulo: Segmentação de clientes; valores mais baixos representam clientes com menor renda ou investimento, valores mais altos representam clientes mais interessantes para a instituição
+  \item cheque: Classificação da conta corrente; quanto maior o valor, mais "especial" o cliente
+  \item evolcredor: Evolução do saldo credor médio trimestral (A: aumentou, D: diminuiu, M: manteve)
+  \item evoldevedor: Evolução do saldo devedor médio trimestral (A: aumentou, D: diminuiu, M: manteve)
+  \item evolpoup:  do saldo da poupança trimestral (A: aumentou, D: diminuiu, M: manteve)
+  \item idade: idade em anos
+  \item salario: está categorizado em 10 categorias (quanto maior, maior o salário)
+  \item cartaocancel: Cancelamento do cartão de credito pelo banco 0 - não cancelou; 1 - cancelou
+  \item bancsal: 0: não recebe salário pelo banco; 1: recebe salário pelo banco
+  \item tempo: Tempo de permanência com um determinado produto, em meses
+  \item status: 1: tempo refere-se ao tempo da contratação até o cancelamento do produto; 0: tempo da contratação até término de acompanhamento sem cancelamento (censura)
+\end{itemize}
+
+\section{Análise Descritiva}
+
+<<echo=FALSE>>=
+dados <- read.table("dados/Retencao.txt", dec = ",", sep = "\t", header = T)
+@
+
+Para verificar se existem possíveis inconsistências nos dados, foi feita uma análise exploratória. Além disso, podemos já ter uma ideia do que pode influencia no tempo até o cancelamento do cartão de crédito. 
+
+\begin{figure}
+\centering
+<<echo=FALSE, fig.show='asis', fig.height=6, fig.width = 7, warning=FALSE, message=FALSE>>=
+library(ggplot2)
+library(gridExtra)
+sexo <- qplot(dados$sexo, geom = "bar") + xlab("Sexo") + ylab("Contagem")
+evolcredor <- qplot(dados$evolcredor, geom = "bar") + xlab("Evolução do Saldo Credor") + ylab("Contagem")
+evoldevedor <- qplot(dados$evolcredor, geom = "bar") + xlab("Evolução do Saldo Devedor") + ylab("Contagem")
+evolpoup <- qplot(dados$evolpoup, geom = "bar") + xlab("Evolução do Saldo da Poupança") + ylab("Contagem")
+modulo <- qplot(as.factor(dados$modulo), geom = "bar") + xlab("Módulo do cliente") + ylab("Contagem")
+cheque <- qplot(as.factor(dados$cheque), geom = "bar") + xlab("Classificação da conta corrente") + ylab("Contagem")
+cartaocancel <- qplot(as.factor(dados$cartaocancel), geom = "bar") + xlab("Classificação da conta corrente") + ylab("Contagem")
+bancsal <- qplot(as.factor(dados$bancsal), geom = "bar") + xlab("Classificação da conta corrente") + ylab("Contagem")
+idade <- qplot(dados$idade, geom = "histogram", binwidth = 10, colour = "white") + xlim(20, 80)
+idade <- ggplot(dados, aes(idade)) + 
+  geom_histogram(colour = "white", binwidth = 10) + 
+  xlim(20, 80) +
+  xlab("Idade") + ylab("Contagem")
+grid.arrange(sexo, evolcredor, evoldevedor, evolpoup, modulo, cheque, cartaocancel, bancsal, idade, ncol = 3)
+@
+\caption{(i) quantidade de clientes em cada categoria da variável sexo, (ii) quantidade de clientes em cada categoria de evolução do saldo credor, (iii) quantidade de clientes em cada categoria de evolução do saldo devedor, (iv) quantidade de clientes em cada categoria de evolução do saldo da poupança, (v) quantidade de clientes em cada módulo (segmento) criado pelo banco, (vi) quantidade de clientes em  cada classificação da conta corrente, (vii) quantidade de clientes que cancelaram o cartão (1), (viii) quantidade de clientes que recebem o salário por meio do banco, (ix) histograma da idade dos clientes}
+\end{figure}
+
+Pelos gráficos da figura 1, podemos observar que 60\% dos clientes são do sexo masculino. A maior parte dos clientes teve um aumento do saldo credor e do saldo devedor. Também podemos analisar que a maior parte dos clientes manteve estável o saldo da poupança. Observamos que a maior parte dos clienes estão no segmento 110 do módulo, e que cerca de 50\% dos cliente estão na classificação 0 da conta corrente. Note que no gráfico (vi) existe a ocorrência de uma observação ausente, isto é, não temos a informação de que tipo de conta o cliente ppossui.
+
+\begin{figure}[t!]
+
+\centering
+<<echo=FALSE,fig.width=6, fig.height=3,warning=FALSE, message=FALSE>>=
+qplot(as.factor(dados$salario), geom = "bar") + xlab("Classificação do Salário") + ylab("Contagem")
+@
+\caption{Quantidade de clientes em cada classificação do salário}
+\end{figure}
+
+Pela figura 2 observamos que cerca de 30\% dos clientes ganham até R\$300,00, em seguida as categorias com mais indivíduos são a 3 e a 4 que contém pessoas que ganham de R\$501,00 a R\$1500,00.
+
+\begin{figure}[t!]
+
+\centering
+<<echo=FALSE,fig.width=3, fig.height=4,warning=FALSE, message=FALSE>>=
+qplot(y = dados$tempo, x= " ", geom = "boxplot") + ylab("Tempo até o cancelamento/fim do estudo")
+@
+\caption{Boxplot do tempo até o cancelamento do cartão de crédito ou fim do acompanhamento}
+\end{figure}
+
+Na figura 3, vemos que os clientes em mediana têm o produto por 11 meses. Aproximadamente 75\% dos clientes tem tempo até 68 meses. O indivíduo que possui o produto a mais tempo, o tem a 353 meses. No estudo observamos que \Sexpr{table(dados$status)[1]} clientes foram censurados, ou seja, ainda não tinham cancelado o cartão de crédito até a data de fim do acompanhamento.
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
