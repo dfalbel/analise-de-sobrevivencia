@@ -87,6 +87,22 @@ qplot(y = dados$tempo, x= " ", geom = "boxplot") + ylab("Tempo até o cancelamen
 
 Na figura 3, vemos que os clientes em mediana têm o produto por 11 meses. Aproximadamente 75\% dos clientes tem tempo até 68 meses. O indivíduo que possui o produto a mais tempo, o tem a 353 meses. No estudo observamos que \Sexpr{table(dados$status)[1]} clientes foram censurados, ou seja, ainda não tinham cancelado o cartão de crédito até a data de fim do acompanhamento.
 
+Como não encontramos nenhuma irregularidade nas variáveis, passamos para uma análise descritiva bivariada. Aqui cruzamos as variáveis do banco de dados com o tempo até o cancelamento do produto, para assim termos dicas de como as variáveis estão relacionadas ao tempo que o cliente permanece com o cartão.
+
+
+\begin{figure}[t!]
+
+\centering
+<<echo = F, warning=FALSE, message=FALSE>>=
+library(tidyr)
+library(dplyr)
+dados_t <- dados %>% gather(variavel, valor, -ID, -tempo) %>% filter((variavel %in% c("idade", "status", "salario")) == F)
+
+ggplot(dados_t, aes(y = tempo, x= valor)) +  geom_boxplot() + facet_wrap(~variavel, scales = "free_x") + ylab("Tempo até o cancelamento do cartão/fim do acompanhamento") + xlab("Categorias das variáveis")
+@
+\caption{Boxplots do tempo até o cancelamento do cartão/fim do acompanhamento para cada variável do banco de dados}
+\end{figure}
+
 
 
 
