@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2014.6.3)  16 NOV 2014 15:48
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2014.6.3)  19 NOV 2014 05:10
 entering extended mode
  %&-line parsing enabled.
 **relatorio.tex
@@ -556,24 +556,54 @@ Package color Info: Redefining color shadecolor on input line 136.
 File: figure/unnamed-chunk-5.pdf Graphic file (type pdf)
 
 <use figure/unnamed-chunk-5.pdf> [3 <./figure/unnamed-chunk-3.pdf> <./figure/un
-named-chunk-4.pdf>] [4 <./figure/unnamed-chunk-5.pdf>] (./relatorio.aux) ) 
+named-chunk-4.pdf>]
+Package color Info: Redefining color shadecolor on input line 149.
+
+<figure/unnamed-chunk-6.pdf, id=35, 505.89pt x 237.88875pt>
+File: figure/unnamed-chunk-6.pdf Graphic file (type pdf)
+
+<use figure/unnamed-chunk-6.pdf> [4 <./figure/unnamed-chunk-5.pdf>]
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 164.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 164.
+Package color Info: Redefining color shadecolor on input line 171.
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 173.
+Package color Info: Redefining color shadecolor on input line 192.
+
+<figure/unnamed-chunk-8.pdf, id=45, 289.08pt x 289.08pt>
+File: figure/unnamed-chunk-8.pdf Graphic file (type pdf)
+
+<use figure/unnamed-chunk-8.pdf>
+Package color Info: Redefining color shadecolor on input line 204.
+
+<figure/unnamed-chunk-9.pdf, id=46, 289.08pt x 289.08pt>
+File: figure/unnamed-chunk-9.pdf Graphic file (type pdf)
+
+<use figure/unnamed-chunk-9.pdf> [5 <./figure/unnamed-chunk-6.pdf>] [6 <./figur
+e/unnamed-chunk-8.pdf> <./figure/unnamed-chunk-9.pdf>] (./relatorio.bbl)
+[7] (./relatorio.aux) ) 
 Here is how much of TeX's memory you used:
- 2149 strings out of 495041
- 28514 string characters out of 1181898
- 83607 words of memory out of 3000000
- 5322 multiletter control sequences out of 15000+50000
- 7615 words of font info for 27 fonts, out of 3000000 for 9000
+ 2178 strings out of 495041
+ 29088 string characters out of 1181898
+ 85610 words of memory out of 3000000
+ 5343 multiletter control sequences out of 15000+50000
+ 8129 words of font info for 29 fonts, out of 3000000 for 9000
  30 hyphenation exceptions out of 8191
- 25i,6n,31p,838b,236s stack positions out of 5000i,500n,10000p,200000b,50000s
- </ho
-me/dfalbel/.texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk></usr/share/te
-xmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texlive
-/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1
-/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsf
-onts/cm/cmr17.pfb>
-Output written on relatorio.pdf (4 pages, 91995 bytes).
+ 25i,9n,31p,838b,243s stack positions out of 5000i,500n,10000p,200000b,50000s
+ </home/dfalbel/.texmf-var/fonts/pk/ljfour/jknappen/ec/t
+crm1000.600pk></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.p
+fb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/sh
+are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-te
+xlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/
+type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/public
+/amsfonts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/
+cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on relatorio.pdf (7 pages, 189850 bytes).
 PDF statistics:
- 61 PDF objects out of 1000 (max. 8388607)
+ 111 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

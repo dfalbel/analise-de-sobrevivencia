@@ -9,7 +9,7 @@
 
 \section*{Resumo}
 
-Para auxiliar um banco na criação de ações publicitárias para retenção de clientes que possuem um certo cartão de crédito, este trabalho apresenta uma análise estatística que permite a identificação dos clientes mais propensos a cancelar o produto.
+Para auxiliar um banco na criação de ações publicitárias para retenção de clientes que possuem um certo cartão de crédito, este trabalho apresenta uma análise estatística que permite a identificação dos clientes mais propensos a cancelar o produto. Através de uma análise exploratória dos dados, foi identificado que a evolução dos saldos do cliente (credor, devedor ou da poupança) além do seu salário eram variáveis importantes para a explicação do tempo até o cancelamento do cartão de crédito.
 
 \section{Descrição do problema}
 
@@ -96,15 +96,116 @@ Como não encontramos nenhuma irregularidade nas variáveis, passamos para uma a
 <<echo = F, warning=FALSE, message=FALSE>>=
 library(tidyr)
 library(dplyr)
-dados_t <- dados %>% gather(variavel, valor, -ID, -tempo) %>% filter((variavel %in% c("idade", "status", "salario")) == F)
+dados_t <- dados %>% gather(variavel, valor, -ID, -c(tempo, status)) %>% filter((variavel %in% c("idade", "status", "salario")) == F)
 
-ggplot(dados_t, aes(y = tempo, x= valor)) +  geom_boxplot() + facet_wrap(~variavel, scales = "free_x") + ylab("Tempo até o cancelamento do cartão/fim do acompanhamento") + xlab("Categorias das variáveis")
+
+source(file = "funcoes/ggkm.R")
+source(file = "funcoes/multiplot.R")
+library(survMisc)
+ggkm2 <- function(dados){
+  fit <- survfit(Surv(tempo,status)~valor, data=dados)
+  var <- as.character(dados$variavel)[1]
+  survMisc::autoplot.survfit(fit, xlab = "Tempo", ylab = "Sobrevivência",title = NULL, legTitle = var, legSize = 1,axisLabSize = .5                              )$plot
+}
+
+graficos <- dados_t %>% group_by(variavel) %>% do(x = ggkm2(.))
+multiplot(plotlist =graficos[,2], cols = 2)
 @
-\caption{Boxplots do tempo até o cancelamento do cartão/fim do acompanhamento para cada variável do banco de dados}
+\caption{Curvas de sobrevivência estimadas por Kaplan-Meier para cada variável do banco de dados}
 \end{figure}
 
+Pelos gráficos da figura 5 podemos ver que não parece existir associação entre o sexo e o tempo, já que para as duas categorias as linhas se sobrepoem. O módulo também não parece influenciar, mas o tipo de conta e as evoluções de saldo devedor, creditor ou da poupança parecem apresentar diferenças no tempo até o cancelamento dependendo das categorias.
+Os clientes que recebem o salário pelo banco tendem, aparentemente a ter tempos maiores.
+
+\begin{figure}[t!]
+\centering
+<<echo = F, warning=FALSE, message=FALSE, fig.height=3.3>>=
+library(tidyr)
+library(dplyr)
+dados_t <- dados %>% gather(variavel, valor, -ID, -c(tempo)) %>% filter(variavel %in% c("idade", "salario"))
+dados_t$valor <- dados_t$valor %>% as.character() %>% as.numeric()
+
+ggplot(dados_t, aes(y = tempo, x= valor)) +  geom_point() + facet_wrap(~variavel, scales = "free_x") + ylab("Tempo até o cancelamento do cartão \n /fim do acompanhamento") + xlab("Categorias das variáveis")
+@
+\caption{Gráficos de dispersão do tempo até o cancelamento do cartão/fim do acompanhamento pela idade e pela categoria de salário do cliente.}
+\end{figure}
+
+Nos gráficos da figura 6, é possível observar que o salário do cliente parece ser correlacionado positivamente com o tempo atée o cancelamento do cartão e que a idade não apresenta esse comportamento.
+
+Após a análise descritiva, acreditamos que as principais variáveis para prever o tempo até o cancelamento do cartão são os saldos (credor, devedor e de poupança) e a categoria de salário do cliente. 
+
+\section{Análise Inferencial}
+
+Inicialmente vamos propor um modelo de Cox da forma:
+
+$$\alpha(t|X) = \alpha_0(T)exp(t\beta)$$
+
+Com $X$ um vetor com as covariáveis apresentadas na análise descritiva e $\beta$ os parâmetros associados a essas variáveis.
+O ajuste do modelo foi feito no \texttt{R} usando o comando \texttt{coxph} do pacote \texttt{survival}. Já a seleção das variáveis explicativas foi feita usando o método `AIC`, isto é, selecionamos o modelo com o menor AIC. Como apenas três observações possuiam valores omisso em algumas das variáves, optamos por apenas excluí-las da análise. Optamos por não utilizar devido as duas variáveis "saldo credor" e "saldo devedor" juntas no modelo, pois por terem forte associação, a estimação dos parâmetros pode ser prejudicada. Por isso utilizamos apenas a variável evolcredor.
 
 
+<<message=FALSE, results='hide'>>=
+library(survival)
+modelo <- coxph(Surv(tempo,status) ~ sexo + modulo + as.factor(cheque) + evolcredor + 
+                   evolpoup + idade + salario + cartaocancel + bancsal,
+                data = na.omit(dados))
+
+
+modelo.a <- step(modelo)
+@
+
+As variáveis explicativas selecionadas foram a evolução do saldo credor e da poupança além do salário e do indicador se o cliente recebe o salário pelo banco.
+Todas as variáveis explicativas selecionadas pelo método AIC são significativas a nível de confiança 5\% pelo teste de Wald marginal.
+
+Com o modelo escolhido, fizemos uma análise de diagnóstico para verificar a qualidade do ajuste. Analisamos o resíduo de Cox-Snell, que da uma ideia da qualidade geral do ajuste do modelo.
+
+\begin{figure}[t!]
+\centering
+<<echo = F, fig.width=4, fig.height=4>>=
+source(file = "funcoes/plot.coxsnell.R")
+modelo.a <- coxph(Surv(tempo,status) ~  evolcredor + evolpoup + 
+                   salario + bancsal,
+                data = na.omit(dados))
+plot.coxsnell(modelo.a)
+@
+\caption{Gráfico da taxa de falha acumulada pelos resíduos de Cox-Snell, era esperado os pontos estivessem sobre/próximos a reta referência}
+\end{figure}
+
+O gráfico dos resíduos de Cox-Snell indicou que o ajuste geral do modelo parece ser adequado, já que os pontos estao próximos a reta referência. Não tendo problema com o ajuste geral do modelo, fizemos o gráfico do preditor linear pelo resíduo deviance, para assim poder identificar observações aberrantes que poderiam interferir nas estimativas do parâmetro.
+
+\begin{figure}[t!]
+\centering
+<<echo = F, fig.height=4, fig.width=4>>=
+plot(modelo.a$linear.predictors,resid(modelo.a,type='deviance'), xlab='Preditor linear', ylab='Residuo deviance')
+@
+\caption{Gráfico do preditor linear pelo resíduo deviance. Esperamos que eles estejam distribuídos aleatoriamente e que não haja resíduos com valores em módulo maiores do que 2.}
+\end{figure}
+
+A partir da observação do gráfico podemos concluir que não existem pontos aberrantes. Além disso temos mais um indicativo de que o modelo de Cox está bem ajustado já que os valores dos resíduos estão aleatoriamente distribuidos de acordo com o preditor linear. Não observamos nenhum padrão, o que indicaria que o modelo não está bem ajustado.
+
+A seguir apresentamos as estimativas dos parâmetros do modelo e discutiremos a interpretação dos resultados.
+
+<<echo=FALSE, results='asis'>>=
+library(xtable)
+x <- summary(modelo.a)$coefficients
+xtable(x, caption = "Estimativas dos parâmetros do modelo ajustado")
+@
+
+Para facilitar a interpretação utilizaremos a tabela abaixo que apresenta as taxas de falha relativa estimadas bem como seus intervalos de confiança.
+
+<<echo=FALSE, results='asis'>>=
+x <- summary(modelo.a)$conf.int
+xtable(x, caption = "Estimativas das razões de chance com base nos parâmetros do modelo ajustado")
+@
+
+Utilizando as estimativas do modelo, podemos concluir que o fator mais importante para o cancelamento do cartão é a evolução do saldo da poupança. O cliente que diminui o saldo da poupança tem 24 vezes mais risco de cancelar do que um cliente como na referência (que aumentou o saldo credor, o saldo de poupança, não recebe o salário pelo banco e tem um salário baixo). O risco de cancelar quando o cliente manteve o saldo da poupança é 8 vezes o da referência.
+O cliente que teve aumento no saldo devedor tem 3 vezes o risco de cancelar o cartão se comparado com a referência, já o que manteve o saldo tem 2 vezes esse risco.
+
+Um fato interessante é o que o cliente que recebe o salário pelo banco tem 2 vezes menos risco de cancelar o cartão quando comparado a referência. Quanto maior o salário, menor o risco de cancelamento também, a cada aproximadamente 500 reais o risco diminui cerca de 30\%.
+
+\nocite{sobrev}
+\bibliographystyle{unsrt}%Used BibTeX style is unsrt
+\bibliography{bibliografia}
 
 
 
